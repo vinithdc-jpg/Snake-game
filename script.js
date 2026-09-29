@@ -9,6 +9,15 @@ let direction;
 let score;
 let game;
 
+// Difficulty speeds
+const levels = {
+  easy: 180,
+  medium: 100,
+  hard: 60,
+};
+
+let difficulty = "easy";
+
 // Start game
 function startGame() {
   snake = [
@@ -24,8 +33,19 @@ function startGame() {
 
   createFood();
 
+  // Stop previous game
   clearInterval(game);
-  game = setInterval(drawGame, 100);
+
+  // Start game with selected speed
+  game = setInterval(drawGame, levels[difficulty]);
+}
+
+// Change difficulty
+function setDifficulty(level) {
+  difficulty = level;
+
+  // Restart game with new difficulty
+  startGame();
 }
 
 // Create food
@@ -52,7 +72,8 @@ function drawGame() {
 
   // Draw food
   ctx.fillStyle = "red";
-  ctx.fillRect(food.x, food.y, box, box);
+
+  ctx.fillRect(food.x, food.y, box - 1, box - 1);
 
   // Draw snake
   snake.forEach((part, index) => {
@@ -61,12 +82,13 @@ function drawGame() {
     ctx.fillRect(part.x, part.y, box - 1, box - 1);
   });
 
-  // Calculate new head
+  // Create new head
   let head = {
     x: snake[0].x,
     y: snake[0].y,
   };
 
+  // Move snake
   if (direction === "UP") {
     head.y -= box;
   }
@@ -83,7 +105,7 @@ function drawGame() {
     head.x += box;
   }
 
-  // Check wall collision
+  // Wall collision
   if (
     head.x < 0 ||
     head.x >= canvas.width ||
@@ -94,7 +116,7 @@ function drawGame() {
     return;
   }
 
-  // Check self collision
+  // Snake collision
   for (let part of snake) {
     if (head.x === part.x && head.y === part.y) {
       gameOver();
@@ -105,7 +127,7 @@ function drawGame() {
   // Add new head
   snake.unshift(head);
 
-  // Check food collision
+  // Food collision
   if (head.x === food.x && head.y === food.y) {
     score++;
 
@@ -123,10 +145,13 @@ function gameOver() {
   clearInterval(game);
 
   ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   ctx.fillStyle = "white";
+
   ctx.font = "30px Arial";
+
   ctx.textAlign = "center";
 
   ctx.fillText("Game Over!", canvas.width / 2, canvas.height / 2);
@@ -155,10 +180,10 @@ document.addEventListener("keydown", function (event) {
   }
 });
 
-// Restart
+// Restart game
 function restartGame() {
   startGame();
 }
 
-// Start automatically
+// Start game
 startGame();
